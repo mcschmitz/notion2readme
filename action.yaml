@@ -1,0 +1,14 @@
+name: 'Notion2Readme'
+description: 'Converts a Notion Page to a README.md in you repository'
+inputs:
+  token_v2:
+    description: 'Notion Token V2. Can be obtained in Notion active Browser section'
+    required: true
+  url:
+    description: "URL to Notion page"
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.token_v2 }}
