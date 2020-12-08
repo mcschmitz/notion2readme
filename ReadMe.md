@@ -20,7 +20,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest 123
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
