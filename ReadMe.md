@@ -27,7 +27,7 @@ jobs:
       - name: Notion2Readme
         uses: mcschmitz/notion2readme@main
         with:
-          url: '< URL to Notion Page >'
+          url: '<URL to Notion Page>'
         env:
           TOKEN_V2: ${{ secrets.token_v2 }}
       - name: Push Readme
