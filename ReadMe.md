@@ -35,7 +35,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
-          git commit -m "NOTION2README"
+          git diff-index --quiet HEAD || git commit -m "NOTION2README"
           git push
 ```
 
