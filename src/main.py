@@ -1,8 +1,9 @@
 import argparse
-import shutil
 import os
+import shutil
+
 from notion.client import NotionClient
-from notion2md.exporter import PageBlockExporter
+from src.notion_exporter import GitHubPageBlockExporter
 
 parser = argparse.ArgumentParser()
 
@@ -12,28 +13,33 @@ parser.add_argument("--url", type=str)
 
 args = parser.parse_args()
 
-OUTPUT_FOLDER = './README/'
+OUTPUT_FOLDER = "./README/"
 
 
-class GitHubPageBlockExporter(PageBlockExporter):
-    def __init__(self, url, client, blog_mode):
-        super().__init__(url=url,client=client, blog_mode=blog_mode)
-        if not self.bmode:
-            self.file_name = self.page.title
-            self.md = f"# {self.page.title} \n\n"
+def export_notion(token_v2, url):
+    """
+    Exports Notion Page.
 
-
-def export_notion(token_v2="", url=""):
+    Args:
+        token_v2: Notion Token V2
+        url: URL to Notion Page
+    """
     if not (os.path.isdir(OUTPUT_FOLDER)):
         os.makedirs(os.path.join(OUTPUT_FOLDER))
     client = NotionClient(token_v2=token_v2)
-    exporter = GitHubPageBlockExporter(url, client, blog_mode=False)
+    exporter = GitHubPageBlockExporter(url, client)
     exporter.create_main_folder(OUTPUT_FOLDER)
     exporter.create_file()
     export(exporter)
 
 
-def find_markdown(directory: str):
+def find_markdown(directory: str) -> str:
+    """
+    Searches for the first Markdown in a directory.
+
+    Args:
+        directory: Directory to crawl
+    """
     for root, _dirs, files in os.walk(directory, topdown=False):
         for file in files:
             file = os.path.join(root, file)
@@ -43,10 +49,11 @@ def find_markdown(directory: str):
 
 
 def export(exporter):
-    """Recursively export page block with its sub pages
+    """
+    Recursively export page block with its sub pages.
 
-        Args:
-            exporter(PageBlockExporter()): export page block
+    Args:
+        exporter: GitHubPageBlockExporter
     """
     exporter.page2md()
     exporter.write_file()
@@ -54,7 +61,7 @@ def export(exporter):
         export(sub_exporter)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     export_notion(args.token_v2, args.url)
 
     md_path = find_markdown(directory=OUTPUT_FOLDER)

@@ -1,2 +1,1 @@
-notion2md==1.2.3.1
 notion==0.0.27
