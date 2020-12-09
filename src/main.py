@@ -3,7 +3,7 @@ import os
 import shutil
 
 from notion.client import NotionClient
-from src.notion_exporter import GitHubPageBlockExporter
+from notion_exporter import GitHubPageBlockExporter
 
 parser = argparse.ArgumentParser()
 
