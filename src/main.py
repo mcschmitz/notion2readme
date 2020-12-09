@@ -58,4 +58,4 @@ if __name__ == '__main__':
     export_notion(args.token_v2, args.url)
 
     md_path = find_markdown(directory=OUTPUT_FOLDER)
-    shutil.move(md_path, "ReadMe.md")
+    shutil.move(md_path, "README.md")
