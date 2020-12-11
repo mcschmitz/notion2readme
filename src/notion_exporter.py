@@ -4,13 +4,14 @@ import requests
 
 
 class GitHubPageBlockExporter:
-    def __init__(self, url, client):
+    def __init__(self, url, client, output_directory: str):
         """
         Exports a notion page to a github readable markdown.
 
         Args:
             url: URlL to Notion Page
             client: Notion Client
+            output_directory: Markdown output directory
         """
         self.client = client
         self.page = self.client.get_block(url)
@@ -21,27 +22,30 @@ class GitHubPageBlockExporter:
         self.download_dir = ""
         self.sub_exporters = []
 
+        self.dir = self.create_main_folder(output_directory)
+
     def create_main_folder(self, directory):
         """
         create folder with file name.
 
         Args:
-          directory(Stirng): set empty by default.
+          directory: set empty by default.
         """
-        self.dir = directory + self.title + "/"
-
-        if not (os.path.isdir(self.dir)):
-            os.makedirs(os.path.join(self.dir))
+        dir = directory + self.title + "/"
+        dir = dir.replace(" ", "")
+        if not (os.path.isdir(dir)):
+            os.makedirs(os.path.join(dir))
+        return dir
 
     def create_folder(self, directory):
         """
         create folder with directory.
 
         Args:
-          directory(Stirng): set empty by default.
+          directory: set empty by default.
         """
         self.dir = directory
-
+        self.dir = self.dir.replace(" ", "")
         if not (os.path.isdir(self.dir)):
             os.makedirs(os.path.join(self.dir))
 
@@ -53,6 +57,7 @@ class GitHubPageBlockExporter:
           directory(Stirng): set empty by default.
         """
         self.sub_dir = self.dir + "subpage/"
+        self.dir = self.dir.replace(" ", "")
         if not (os.path.isdir(self.sub_dir)):
             os.makedirs(os.path.join(self.sub_dir))
 
