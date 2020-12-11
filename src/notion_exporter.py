@@ -17,37 +17,37 @@ class GitHubPageBlockExporter:
         self.page = self.client.get_block(url)
         self.title = self.page.title
         self.file_name = self.page.title
-        self.md = ""
+        self.md = f"# {self.page.title} \n\n"
         self.image_dir = ""
         self.download_dir = ""
         self.sub_exporters = []
 
-        self.dir = self.create_main_folder(output_directory)
+        self.directory = self.create_main_folder(output_directory)
 
     def create_main_folder(self, directory):
         """
         create folder with file name.
 
         Args:
-          directory: set empty by default.
+            directory: set empty by default.
         """
-        dir = directory + self.title + "/"
-        dir = dir.replace(" ", "")
-        if not (os.path.isdir(dir)):
-            os.makedirs(os.path.join(dir))
-        return dir
+        directory += self.title + "/"
+        directory = directory.replace(" ", "")
+        if not (os.path.isdir(directory)):
+            os.makedirs(os.path.join(directory))
+        return directory
 
     def create_folder(self, directory):
         """
         create folder with directory.
 
         Args:
-          directory: set empty by default.
+             directory: set empty by default.
         """
-        self.dir = directory
-        self.dir = self.dir.replace(" ", "")
-        if not (os.path.isdir(self.dir)):
-            os.makedirs(os.path.join(self.dir))
+        self.directory = directory
+        self.directory = self.directory.replace(" ", "")
+        if not (os.path.isdir(self.directory)):
+            os.makedirs(os.path.join(self.directory))
 
     def create_sub_folder(self):
         """
@@ -56,8 +56,8 @@ class GitHubPageBlockExporter:
         Args:
           directory(Stirng): set empty by default.
         """
-        self.sub_dir = self.dir + "subpage/"
-        self.dir = self.dir.replace(" ", "")
+        self.sub_dir = self.directory + "subpage/"
+        self.directory = self.directory.replace(" ", "")
         if not (os.path.isdir(self.sub_dir)):
             os.makedirs(os.path.join(self.sub_dir))
 
@@ -68,7 +68,7 @@ class GitHubPageBlockExporter:
         Returns:
           self.file(String): path of file
         """
-        file_path = os.path.join(self.dir, self.file_name + ".md")
+        file_path = os.path.join(self.directory, self.file_name + ".md")
         self.file = open(file_path, "w")
         return file_path
 
@@ -83,7 +83,7 @@ class GitHubPageBlockExporter:
         """
         create image output directory.
         """
-        self.image_dir = os.path.join(self.dir, "image/")
+        self.image_dir = os.path.join(self.directory, "image/")
         if not (os.path.isdir(self.image_dir)):
             os.makedirs(os.path.join(self.image_dir))
 
@@ -110,7 +110,7 @@ class GitHubPageBlockExporter:
         """
         create download output directory.
         """
-        self.download_dir = os.path.join(self.dir, "download/")
+        self.download_dir = os.path.join(self.directory, "download/")
         if not (os.path.isdir(self.download_dir)):
             os.makedirs(os.path.join(self.download_dir))
 
