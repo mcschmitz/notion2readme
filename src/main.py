@@ -13,7 +13,7 @@ parser.add_argument("--url", type=str)
 
 args = parser.parse_args()
 
-OUTPUT_FOLDER = "./README/"
+OUTPUT_FOLDER = "./.README/"
 
 
 def export_notion(token_v2, url):
@@ -39,7 +39,7 @@ def find_markdown(directory: str) -> str:
     Args:
         directory: Directory to crawl
     """
-    for root, _dirs, files in os.walk(directory, topdown=False):
+    for root, _dirs, files in os.walk(directory, topdown=True):
         for file in files:
             file = os.path.join(root, file)
             _filename, file_extension = os.path.splitext(file)

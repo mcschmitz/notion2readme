@@ -21,8 +21,10 @@ class GitHubPageBlockExporter:
         self.image_dir = ""
         self.download_dir = ""
         self.sub_exporters = []
-
-        self.directory = self.create_main_folder(output_directory)
+        if output_directory:
+            self.cwd = self.create_main_folder(output_directory)
+        else:
+            self.cwd = self.create_main_folder(".")
 
     def create_main_folder(self, directory):
         """
@@ -33,31 +35,16 @@ class GitHubPageBlockExporter:
         """
         directory += self.title + "/"
         directory = directory.replace(" ", "")
-        if not (os.path.isdir(directory)):
+        if not os.path.isdir(directory):
             os.makedirs(os.path.join(directory))
         return directory
-
-    def create_folder(self, directory):
-        """
-        create folder with directory.
-
-        Args:
-             directory: set empty by default.
-        """
-        self.directory = directory
-        self.directory = self.directory.replace(" ", "")
-        if not (os.path.isdir(self.directory)):
-            os.makedirs(os.path.join(self.directory))
 
     def create_sub_folder(self):
         """
         create sub folder with current file name.
-
-        Args:
-          directory(Stirng): set empty by default.
         """
-        self.sub_dir = self.directory + "subpage/"
-        self.directory = self.directory.replace(" ", "")
+        self.sub_dir = self.cwd + "subpage/"
+        self.cwd = self.cwd.replace(" ", "")
         if not (os.path.isdir(self.sub_dir)):
             os.makedirs(os.path.join(self.sub_dir))
 
@@ -68,8 +55,9 @@ class GitHubPageBlockExporter:
         Returns:
           self.file(String): path of file
         """
-        file_path = os.path.join(self.directory, self.file_name + ".md")
-        self.file = open(file_path, "w")
+        file_path = os.path.join(self.cwd, self.file_name + ".md")
+        with open(file_path, "w") as file:
+            self.file = file
         return file_path
 
     def write_file(self):
@@ -83,22 +71,19 @@ class GitHubPageBlockExporter:
         """
         create image output directory.
         """
-        self.image_dir = os.path.join(self.directory, "image/")
+        self.image_dir = os.path.join(self.cwd, "image/")
         if not (os.path.isdir(self.image_dir)):
             os.makedirs(os.path.join(self.image_dir))
 
-    def image_export(self, url, count):
+    def image_export(self, url: str, count: int) -> str:
         """
         make image file based on url and count.
 
         Args:
-          url(Stirng): url of image
-          count(int): the number of image in the page
-
-        Returns:
-          image_path(String): image_path for the link in markdown
+            url: url of image
+            count: the number of image in the page
         """
-        if self.image_dir is "":
+        if not self.image_dir:
             self.create_image_foler()
 
         image_path = self.image_dir + "img_{0}.png".format(count)
@@ -110,7 +95,7 @@ class GitHubPageBlockExporter:
         """
         create download output directory.
         """
-        self.download_dir = os.path.join(self.directory, "download/")
+        self.download_dir = os.path.join(self.cwd, "download/")
         if not (os.path.isdir(self.download_dir)):
             os.makedirs(os.path.join(self.download_dir))
 
@@ -235,9 +220,8 @@ class GitHubPageBlockExporter:
             self.create_sub_folder()
             sub_url = block.get_browseable_url()
             exporter = GitHubPageBlockExporter(
-                sub_url, self.client, self.bmode
+                sub_url, self.client, self.sub_dir
             )
-            exporter.create_folder(self.sub_dir)
             sub_page_path = exporter.create_file()
             try:
                 if "https:" in block.icon:
