@@ -4,7 +4,7 @@ import requests
 
 
 class GitHubPageBlockExporter:
-    def __init__(self, url, client, output_directory: str):
+    def __init__(self, url, client, output_directory: str = "."):
         """
         Exports a notion page to a github readable markdown.
 
@@ -14,17 +14,16 @@ class GitHubPageBlockExporter:
             output_directory: Markdown output directory
         """
         self.client = client
-        self.page = self.client.get_block(url)
+        self.url = url
+        self.page = self.client.get_block(self.url)
         self.title = self.page.title
         self.file_name = self.page.title
         self.md = f"# {self.page.title} \n\n"
         self.image_dir = ""
         self.download_dir = ""
         self.sub_exporters = []
-        if output_directory:
-            self.cwd = self.create_main_folder(output_directory)
-        else:
-            self.cwd = self.create_main_folder(".")
+        self.cwd = self.create_main_folder(output_directory)
+        self.file_path = os.path.join(self.cwd, self.file_name + ".md")
 
     def create_main_folder(self, directory):
         """
@@ -48,24 +47,14 @@ class GitHubPageBlockExporter:
         if not (os.path.isdir(self.sub_dir)):
             os.makedirs(os.path.join(self.sub_dir))
 
-    def create_file(self):
-        """
-        create md file that md will be stored.
-
-        Returns:
-          self.file(String): path of file
-        """
-        file_path = os.path.join(self.cwd, self.file_name + ".md")
-        with open(file_path, "w") as file:
-            self.file = file
-        return file_path
-
     def write_file(self):
         """
         save markdown output in the file.
         """
-        self.file.write(self.md)
-        self.file.close()
+        with open(self.file_path, "w") as file:
+            file = file
+            file.write(self.md)
+            file.close()
 
     def create_image_foler(self):
         """
@@ -88,10 +77,11 @@ class GitHubPageBlockExporter:
 
         image_path = self.image_dir + "img_{0}.png".format(count)
         r = requests.get(url, allow_redirects=True)
-        open(image_path, "wb").write(r.content)
+        with open(image_path, "wb") as file:
+            file.write(r.content)
         return image_path
 
-    def create_download_foler(self):
+    def create_download_folder(self):
         """
         create download output directory.
         """
@@ -99,23 +89,21 @@ class GitHubPageBlockExporter:
         if not (os.path.isdir(self.download_dir)):
             os.makedirs(os.path.join(self.download_dir))
 
-    def downlaod_file(self, url, file_name):
+    def download_file(self, url: str, file_name: str):
         """
         download a file in the page.
 
         Args:
-          url(Stirng): url of the downlaod file
-          file_name(String): name of the file
-
-        Returns:
-          None
+            url: url of the downlaod file
+            file_name: name of the file
         """
-        if self.download_dir is "":
-            self.create_download_foler()
+        if not self.download_dir:
+            self.create_download_folder()
 
         download_path = self.download_dir + file_name
         r = requests.get(url, allow_redirects=True)
-        open(download_path, "wb").write(r.content)
+        with open(download_path, "wb") as file:
+            file.write(r.content)
 
     def _page_header(self):
         """
@@ -169,21 +157,6 @@ class GitHubPageBlockExporter:
         formatted_date = date.strftime("%Y-%m-%d")
         return formatted_date
 
-    def _set_filename(self):
-        """
-        return formatted file name.
-
-        Returns:
-          file name(String): formatted_file_name
-        """
-        try:
-            date_in_name = self._format_date() + "-"
-        except:
-            print("[Notice] '{0}' has no Created Date".format(self.page.title))
-            date_in_name = ""
-        file_name = date_in_name + self.title.replace(" ", "-")
-        return file_name
-
     def block2md(self, block, tap_count, num_index):
         img_count = 0
         result = ""
@@ -222,7 +195,6 @@ class GitHubPageBlockExporter:
             exporter = GitHubPageBlockExporter(
                 sub_url, self.client, self.sub_dir
             )
-            sub_page_path = exporter.create_file()
             try:
                 if "https:" in block.icon:
                     icon = "!" + link_format("", block.icon)
@@ -231,7 +203,9 @@ class GitHubPageBlockExporter:
             except:
                 icon = ""
             self.sub_exporters.append(exporter)
-            result += icon + link_format(exporter.file_name, sub_page_path)
+            result += icon + link_format(
+                exporter.file_name, exporter.file_path
+            )
         if btype == "text":
             try:
                 result += get_inline_math(block)
@@ -282,7 +256,7 @@ class GitHubPageBlockExporter:
         if btype == "column" or btype == "column_list":
             result += ""
         if btype == "file":
-            self.downlaod_file(block.source, block.title)
+            self.download_file(block.source, block.title)
             print(
                 "\n[Download]'{0}' is saved in 'download' folder".format(
                     block.title
@@ -314,6 +288,7 @@ class GitHubPageBlockExporter:
                 self.md += self.block2md(block, tapped, num_index=num_index)
             except:
                 self.md += ""
+        self.md += f"\n\nThis page was autogenerated by {link_format('notion2readme', 'https://github.com/mcschmitz/notion2readme')}. The original notion page can be found {link_format('here', self.url)}."
 
     def make_table(self, collection):
         columns = []

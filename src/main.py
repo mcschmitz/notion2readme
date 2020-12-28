@@ -28,7 +28,6 @@ def export_notion(token_v2, url):
         os.makedirs(os.path.join(OUTPUT_FOLDER))
     client = NotionClient(token_v2=token_v2)
     exporter = GitHubPageBlockExporter(url, client, OUTPUT_FOLDER)
-    exporter.create_file()
     export(exporter)
 
 
